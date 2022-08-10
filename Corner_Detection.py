@@ -11,8 +11,8 @@ import numpy as np
 import cv2
 
 # Read in the image
-imageL = cv2.imread('imageLeft.jpg')
-imageR = cv2.imread('imageRight.jpg')
+imageL = cv2.imread('Images/imageLeft.jpg')
+imageR = cv2.imread('Images/imageRight.jpg')
 
 def corner_detect(image):
     # Make a copy of the image
