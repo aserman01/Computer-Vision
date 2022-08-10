@@ -40,21 +40,27 @@ def SIFT(imageL,imageR):
     # Get only matches with only a short distance (eliminate false matches)
     matches = sorted(matches, key = lambda x : x.distance)
 
-    # We will only display first 1000 matches for simplicity
-    result = cv2.drawMatches(imageL, left_keypoints, imageR, right_keypoints, matches[:1000], grayR, flags = 2)
+    # We will only display first 100 matches for simplicity
+    result = cv2.drawMatches(imageL, left_keypoints, imageR, right_keypoints, matches[:100], grayR, flags = 2)
 
     # Display the matches
     plt.rcParams['figure.figsize'] = [14.0, 7.0]
     plt.title('Matches')
     plt.imshow(result)
     plt.show()
-
+    
+    result = cv2.cvtColor(result, cv2.COLOR_BGR2RGB)
+    cv2.imshow('Matches', result)
+    
     # Print total number of matching points between the training and query images
     print("\nImage is ready. \nNumber of Matching Keypoints: ", len(matches))
+    cv2.waitKey(0)
+    
+    
     
 
 # Load images
-image1 = cv2.imread('imageLeft.jpg')
-image2 = cv2.imread('imageRight.jpg')
+image1 = cv2.imread('Images/imageLeft.jpg')
+image2 = cv2.imread('Images/imageRight.jpg')
 
 SIFT(image1,image2)
