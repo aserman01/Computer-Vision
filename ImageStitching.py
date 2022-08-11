@@ -10,7 +10,7 @@ import cv2
 import numpy as np
 
 
-def ImageStitching(imageL,imageR):
+def ImageStitching(imageL,imageR, outname):
     
     # Convert images into gray scale
     grayL = cv2.cvtColor(imageL, cv2.COLOR_BGR2GRAY)
@@ -50,6 +50,7 @@ def ImageStitching(imageL,imageR):
     # Print total number of matching points between the training and query images
     print("\nSIFT Matches are ready. \nNumber of Matching Keypoints: ", len(matches))
     cv2.waitKey(0)
+    cv2.destroyAllWindows()
     
     # KNN Matching
     
@@ -69,6 +70,7 @@ def ImageStitching(imageL,imageR):
     
     print("\nKNN Matches are ready. \nNumber of Matching Keypoints: ", len(good_matches))
     cv2.waitKey(0)
+    cv2.destroyAllWindows()
     
     # Calculating Homography using good matches and RANSAC
     # I have selected ratio, min_match, RANSAC values according to a study by Caparas, Fajardo and Medina
@@ -144,21 +146,25 @@ def ImageStitching(imageL,imageR):
     
     print("\nPanorama 1 is ready")
     cv2.waitKey(0)
+    cv2.destroyAllWindows()
     
     cv2.imshow('Mask_1', mask1)
 
     print("\nMask_1 is ready")
     cv2.waitKey(0)
+    cv2.destroyAllWindows()
     
     cv2.imshow('Panorama_2', norm_p2)
 
     print("\nPanorama 2 is ready")
     cv2.waitKey(0)
+    cv2.destroyAllWindows()
     
     cv2.imshow('Mask_2', mask2)
 
     print("\nMask_2 is ready")
     cv2.waitKey(0)
+    cv2.destroyAllWindows()
     
     # Get rid of black borders created by perspective differences
     
@@ -169,11 +175,19 @@ def ImageStitching(imageL,imageR):
 
     norm_pf = cv2.normalize(final_result, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
 
-    cv2.imwrite('Panorama_Final.png', final_result)
-    cv2.imshow('Panorama_Final', norm_pf)
+    cv2.imwrite(outname+'.png', final_result)
+    cv2.imshow(outname, norm_pf)
     
-    print("\nPanorama Final is created with the name Panorama_Final.png")
+    print("\n"+outname+" is created with the name Panorama_Final.png")
     cv2.waitKey(0)
+    
+    # A simple code to fix a bug preventing last window to close
+    cv2.waitKey(1)
+    cv2.destroyAllWindows()
+    for i in range (1,5):
+        cv2.waitKey(1)
+        return
+
 
     
                                                           
@@ -187,8 +201,9 @@ def ImageStitching(imageL,imageR):
 image1 = cv2.imread('Problem/test1.jpg')
 image2 = cv2.imread('Problem/test2.jpg')
 '''
+
 image1 = cv2.imread('Problem/imageLeft.jpg')
 image2 = cv2.imread('Problem/imageRight.jpg')
 
 
-ImageStitching(image1,image2)
+ImageStitching(image1,image2, "Panorama_Final32") #(image1, image2, name of the output file)
