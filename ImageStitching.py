@@ -45,7 +45,6 @@ def ImageStitching(imageL,imageR):
     # We will only display first 100 matches for simplicity
     result = cv2.drawMatches(imageL, left_keypoints, imageR, right_keypoints, matches[:100], grayR, flags = 2)
     
-    result = cv2.cvtColor(result, cv2.COLOR_BGR2RGB)
     cv2.imshow('SIFT Matches', result)
     
     # Print total number of matching points between the training and query images
@@ -95,6 +94,8 @@ def ImageStitching(imageL,imageR):
     
     # Creating a mask for better blending
     # Mask will be a weighted filter to make transition between images more seamlessly
+    # For creating this mask function I used the code of linrl3 (https://github.com/linrl3)
+    # His work also give me many inspirations for this project
     
     def create_mask(img1,img2,version):
         smoothing_window_size=800
@@ -106,15 +107,15 @@ def ImageStitching(imageL,imageR):
         offset = int(smoothing_window_size / 2)
         barrier = img1.shape[1] - int(smoothing_window_size / 2)
         mask = np.zeros((height_panorama, width_panorama))
-        if version== 'left_image':
+        if version== 'left_image':  # Used for creating mask1
             mask[:, barrier - offset:barrier + offset ] = np.tile(np.linspace(1, 0, 2 * offset ).T, (height_panorama, 1))
             mask[:, :barrier - offset] = 1
-        else:
+        else:                       # Used for creating mask2 
             mask[:, barrier - offset :barrier + offset ] = np.tile(np.linspace(0, 1, 2 * offset ).T, (height_panorama, 1))
             mask[:, barrier + offset:] = 1
         return cv2.merge([mask, mask, mask])
     
-    # Creating the panaroma
+    # Creating the panorama
     
     height_img1 = imageL.shape[0]
     width_img1 = imageL.shape[1]
@@ -122,13 +123,15 @@ def ImageStitching(imageL,imageR):
     height_panorama = height_img1
     width_panorama = width_img1 + width_img2
     
-    panorama1 = np.zeros((height_panorama, width_panorama, 3))  # We create the shape of our panorama
-    mask1 = create_mask(imageL,imageR,version='left_image')      
-    panorama1[0:imageL.shape[0], 0:imageL.shape[1], :] = imageL
-    panorama1 *= mask1
+    panorama1 = np.zeros((height_panorama, width_panorama, 3))  # 1. create the shape of our panorama
+    mask1 = create_mask(imageL,imageR,version='left_image')     # 2. create our mask with this shape
+    panorama1[0:imageL.shape[0], 0:imageL.shape[1], :] = imageL # 3. include color of each pixel to the shape
+    panorama1 *= mask1                                          # 4. apply our mask to panorama
     mask2 = create_mask(imageL,imageR,version='right_image')
+    
+    #For right half of the panorama, we warp it with H we found and apply the mask
     panorama2 = cv2.warpPerspective(imageR, H, (width_panorama, height_panorama))*mask2
-    result=panorama1+panorama2
+    result=panorama1+panorama2 #We combine both of them to have our result
 
 
     #Normalize panoramas for display
@@ -159,10 +162,10 @@ def ImageStitching(imageL,imageR):
     
     # Get rid of black borders created by perspective differences
     
-    rows, cols = np.where(result[:, :, 0] != 0)
+    rows, cols = np.where(result[:, :, 0] != 0) # Check if a pixel is pure black or not (0-255)
     min_row, max_row = min(rows), max(rows) + 1
     min_col, max_col = min(cols), max(cols) + 1
-    final_result = result[min_row:max_row, min_col:max_col, :]
+    final_result = result[min_row:max_row, min_col:max_col, :] # Resize image without black borders
 
     norm_pf = cv2.normalize(final_result, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
 
@@ -179,9 +182,13 @@ def ImageStitching(imageL,imageR):
     
     
     
-
+'''
 # Load images
+image1 = cv2.imread('Problem/test1.jpg')
+image2 = cv2.imread('Problem/test2.jpg')
+'''
 image1 = cv2.imread('Problem/imageLeft.jpg')
 image2 = cv2.imread('Problem/imageRight.jpg')
+
 
 ImageStitching(image1,image2)
