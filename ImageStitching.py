@@ -176,9 +176,12 @@ def ImageStitching(imageL,imageR, outname):
     norm_pf = cv2.normalize(final_result, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
 
     cv2.imwrite(outname+'.png', final_result)
+    
+    
+    
     cv2.imshow(outname, norm_pf)
     
-    print("\n"+outname+" is created with the name Panorama_Final.png")
+    print("\nFinal Panorama is created with the name "+outname+".png")
     cv2.waitKey(0)
     
     # A simple code to fix a bug preventing last window to close
@@ -202,8 +205,9 @@ image1 = cv2.imread('Problem/test1.jpg')
 image2 = cv2.imread('Problem/test2.jpg')
 '''
 
+output_name = "Panorama_Final32"
 image1 = cv2.imread('Problem/imageLeft.jpg')
 image2 = cv2.imread('Problem/imageRight.jpg')
 
 
-ImageStitching(image1,image2, "Panorama_Final32") #(image1, image2, name of the output file)
+ImageStitching(image1,image2, output_name) #(image1, image2, name of the output file)
