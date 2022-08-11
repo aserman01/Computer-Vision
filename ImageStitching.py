@@ -64,6 +64,7 @@ def ImageStitching(imageL,imageR, outname):
             good_points.append((match1.trainIdx, match1.queryIdx))  # we declare them as good points.
             good_matches.append([match1])
     
+    
     # We will only display first 100 matches for simplicity
     knnResult = cv2.drawMatchesKnn(imageL, left_keypoints, imageR, right_keypoints, good_matches[:100], None, flags=2)
     cv2.imshow('KNN Matches', knnResult)
@@ -73,7 +74,7 @@ def ImageStitching(imageL,imageR, outname):
     cv2.destroyAllWindows()
     
     # Calculating Homography using good matches and RANSAC
-    # I have selected ratio, min_match, RANSAC values according to a study by Caparas, Fajardo and Medina
+    # I have selected ratio, min_match and RANSAC values according to a study by Caparas, Fajardo and Medina
     # said paper: https://www.warse.org/IJATCSE/static/pdf/file/ijatcse18911sl2020.pdf
     
     min_match = 10
@@ -184,7 +185,7 @@ def ImageStitching(imageL,imageR, outname):
     print("\nFinal Panorama is created with the name "+outname+".png")
     cv2.waitKey(0)
     
-    # A simple code to fix a bug preventing last window to close
+    # A simple code to fix a bug preventing last image window to close
     cv2.waitKey(1)
     cv2.destroyAllWindows()
     for i in range (1,5):
