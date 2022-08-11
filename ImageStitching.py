@@ -8,10 +8,9 @@ Created on Thu Aug 11 08:59:55 2022
 
 import cv2
 import numpy as np
-import matplotlib.pyplot as plt
 
 
-def SIFT(imageL,imageR):
+def ImageStitching(imageL,imageR):
     
     # Convert images into gray scale
     grayL = cv2.cvtColor(imageL, cv2.COLOR_BGR2GRAY)
@@ -45,12 +44,6 @@ def SIFT(imageL,imageR):
 
     # We will only display first 100 matches for simplicity
     result = cv2.drawMatches(imageL, left_keypoints, imageR, right_keypoints, matches[:100], grayR, flags = 2)
-
-    # Display the matches
-    plt.rcParams['figure.figsize'] = [14.0, 7.0]
-    plt.title('Matches')
-    plt.imshow(result)
-    plt.show()
     
     result = cv2.cvtColor(result, cv2.COLOR_BGR2RGB)
     cv2.imshow('SIFT Matches', result)
@@ -71,7 +64,8 @@ def SIFT(imageL,imageR):
             good_points.append((match1.trainIdx, match1.queryIdx))  # we declare them as good points.
             good_matches.append([match1])
     
-    knnResult = cv2.drawMatchesKnn(imageL, left_keypoints, imageR, right_keypoints, good_matches, None, flags=2)
+    # We will only display first 100 matches for simplicity
+    knnResult = cv2.drawMatchesKnn(imageL, left_keypoints, imageR, right_keypoints, good_matches[:100], None, flags=2)
     cv2.imshow('KNN Matches', knnResult)
     
     print("\nKNN Matches are ready. \nNumber of Matching Keypoints: ", len(good_matches))
@@ -136,10 +130,15 @@ def SIFT(imageL,imageR):
     panorama2 = cv2.warpPerspective(imageR, H, (width_panorama, height_panorama))*mask2
     result=panorama1+panorama2
 
+
+    #Normalize panoramas for display
+    norm_p1 = cv2.normalize(panorama1, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
+    norm_p2 = cv2.normalize(panorama2, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
+
     # Displaying all results
     
-    cv2.imshow('Panorama_1', panorama1)
-
+    cv2.imshow('Panorama_1', norm_p1)
+    
     print("\nPanorama 1 is ready")
     cv2.waitKey(0)
     
@@ -148,7 +147,7 @@ def SIFT(imageL,imageR):
     print("\nMask_1 is ready")
     cv2.waitKey(0)
     
-    cv2.imshow('Panorama_2', panorama2)
+    cv2.imshow('Panorama_2', norm_p2)
 
     print("\nPanorama 2 is ready")
     cv2.waitKey(0)
@@ -165,10 +164,13 @@ def SIFT(imageL,imageR):
     min_col, max_col = min(cols), max(cols) + 1
     final_result = result[min_row:max_row, min_col:max_col, :]
 
-   
-    cv2.imwrite('Panorama_Final.png', final_result)
+    norm_pf = cv2.normalize(final_result, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
 
+    cv2.imwrite('Panorama_Final.png', final_result)
+    cv2.imshow('Panorama_Final', norm_pf)
+    
     print("\nPanorama Final is created with the name Panorama_Final.png")
+    cv2.waitKey(0)
 
     
                                                           
@@ -182,4 +184,4 @@ def SIFT(imageL,imageR):
 image1 = cv2.imread('Problem/imageLeft.jpg')
 image2 = cv2.imread('Problem/imageRight.jpg')
 
-SIFT(image1,image2)
+ImageStitching(image1,image2)
